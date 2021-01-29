@@ -8,7 +8,7 @@ from flask_security import Security, SQLAlchemyUserDatastore, \
     UserMixin, RoleMixin, login_required
 
 # Define the WSGI application object
-app = Flask(__name__)
+app = Flask(__name__, static_url_path="", static_folder="static")
 
 # Configurations
 app.config.from_object('config')
