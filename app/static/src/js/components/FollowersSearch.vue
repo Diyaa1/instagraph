@@ -99,7 +99,20 @@
 
                 this.searching = true;
 
-                
+                axios({
+                    method: 'post',
+                    url: '/followers/',
+                    data: {
+                        loginName: this.loginName,
+                        password: this.password,
+                        searchUser: this.searchUser,
+                    }
+                }).then((response) => {
+                    console.log(response);
+                }, (error) => {
+                    console.log(error);
+                });
+
             }
 
             

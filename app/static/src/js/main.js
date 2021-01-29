@@ -4,6 +4,9 @@ import vuetify from './plugins/vuetify'
 import Index from './components/index'
 import FollowersSearch from './components/FollowersSearch'
 
+// Define global packages
+window.axios = require('axios');
+
 Vue.use(VueRouter)
 
 // 2. Define some routes
