@@ -1,39 +1,25 @@
 from app import db
 
-
-class Base(db.Model):
-
-    __abstract__ = True
-
-    id = db.Column(db.Integer, primary_key=True)
-    date_created = db.Column(db.DateTime,  default=db.func.current_timestamp())
-    date_modified = db.Column(db.DateTime,  default=db.func.current_timestamp(),
-                              onupdate=db.func.current_timestamp())
+from app import Security, SQLAlchemyUserDatastore, \
+    UserMixin, RoleMixin, login_required
 
 
 # Define a User model
-class User(Base):
+# Define models
+roles_users = db.Table('roles_users',
+        db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
+        db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
 
-    __tablename__ = 'auth_user'
+class Role(db.Model, RoleMixin):
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(80), unique=True)
+    description = db.Column(db.String(255))
 
-    # User Name
-    name = db.Column(db.String(128),  nullable=False)
-
-    # Identification Data: email & password
-    email = db.Column(db.String(128),  nullable=False,
-                      unique=True)
-    password = db.Column(db.String(192),  nullable=False)
-
-    # Authorisation Data: role & status
-    role = db.Column(db.SmallInteger, nullable=False)
-    status = db.Column(db.SmallInteger, nullable=False)
-
-    # New instance instantiation procedure
-    def __init__(self, name, email, password):
-
-        self.name = name
-        self.email = email
-        self.password = password
-
-    def __repr__(self):
-        return '<User %r>' % (self.name)
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(255), unique=True)
+    password = db.Column(db.String(255))
+    active = db.Column(db.Boolean())
+    confirmed_at = db.Column(db.DateTime())
+    roles = db.relationship('Role', secondary=roles_users,
+                            backref=db.backref('users', lazy='dynamic'))
