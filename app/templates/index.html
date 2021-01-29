@@ -10,7 +10,7 @@
 </head>
 
 <body>
-  <div id="app">
+  <div id="app" v-cloak>
     <v-app>
       <v-app-bar color="deep-purple" dark app>
         <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
@@ -41,7 +41,7 @@
         </v-list>
         <template v-slot:append>
           <div class="pa-2">
-            <v-btn block>
+            <v-btn block @click="logout" :loading="loggingOut">
               Logout
             </v-btn>
           </div>

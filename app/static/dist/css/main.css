@@ -44,3 +44,5 @@ body{
 .main-drawer .v-navigation-drawer__content .v-sheet.v-list {
     background: unset;
 }
+
+[v-cloak] { display:none; }

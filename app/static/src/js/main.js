@@ -23,7 +23,6 @@ const router = new VueRouter({
   routes // short for `routes: routes`
 })
 
-console.log(router);
 let app = new Vue({
   vuetify,
   router,
@@ -33,5 +32,12 @@ let app = new Vue({
       ['mdi-account-search-outline', 'Search Followers', "Followers"],
     ],
     drawer: false,
+    loggingOut: false
   }),
+  methods: {
+    logout : function(){
+      this.loggingOut = true;
+      window.location.href = '/logout';
+    } 
+  }
 }).$mount('#app')
