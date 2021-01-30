@@ -14,7 +14,7 @@ DATABASE_CONNECT_OPTIONS = {}
 # using 2 per available processor cores - to handle
 # incoming requests using one and performing background
 # operations using the other.
-THREADS_PER_PAGE = 2
+THREADS_PER_PAGE = 4
 
 # Use a secure, unique and absolutely secret key for
 # signing the data. 

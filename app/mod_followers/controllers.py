@@ -6,7 +6,7 @@ from datetime import datetime
 from instaloader import instaloader, BadCredentialsException, InvalidArgumentException, TwoFactorAuthRequiredException, \
     ProfileNotExistsException
 # Import the database object from the main app module
-from app import db, login_required
+from app import db, login_required, socketio
 
 # Import module forms
 from app.mod_followers.forms import SearchFollowersForm
@@ -19,6 +19,9 @@ L = instaloader.Instaloader()
 # Define the blueprint: 'followers', set its url prefix: app.url/followers
 mod_followers = Blueprint('followers', __name__, url_prefix='/followers')
 
+def emitBatchStatus(data):
+    socketio.emit('batchStatus', data, broadcast=True)
+
 def fetchFollowers( username, password, searchedUser):
 
     L.login(username, password)  # (login)
@@ -29,7 +32,9 @@ def fetchFollowers( username, password, searchedUser):
 
     # Obtain profile metadata
     profile = instaloader.Profile.from_username(L.context, searchedUser) 
+    fetched_followers_count = 0
     for follower in profile.get_followers():
+        socketio.sleep(0)
         followerObject = Follower(userid = follower.userid,
             username = follower.username,
             full_name = follower.full_name,
@@ -37,6 +42,11 @@ def fetchFollowers( username, password, searchedUser):
             batch_id = batch.id 
         )
         db.session.add(followerObject)
+        fetched_followers_count = fetched_followers_count + 1
+        print(fetched_followers_count)
+        if( 0 == fetched_followers_count % 50 ):
+            emitBatchStatus({ 'fetched': fetched_followers_count})
+            socketio.sleep(0)
 
     db.session.commit()
     return batch.id

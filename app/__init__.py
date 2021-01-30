@@ -9,6 +9,8 @@ from flask_security import Security, SQLAlchemyUserDatastore, \
 
 from flask_wtf.csrf import CSRFProtect, generate_csrf
 
+from flask_socketio import SocketIO
+
 
 # Define the WSGI application object
 app = Flask(__name__, static_url_path="", static_folder="static")
@@ -19,6 +21,9 @@ app.config.from_object('config')
 # Define the database object which is imported
 # by modules and controllers
 db = SQLAlchemy(app)
+
+#Run Sockit io
+socketio = SocketIO(app)
 
 # Sample HTTP error handling
 @app.errorhandler(404)
@@ -44,3 +49,5 @@ db.create_all()
 @login_required
 def home():
     return render_template('index.html')
+
+# socketio.run(app)

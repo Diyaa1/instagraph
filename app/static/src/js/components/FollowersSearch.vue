@@ -10,7 +10,7 @@
                 class="subtitle-1 text-center"
                 cols="12"
                 >
-                    Batch in progress
+                    Batch in progress <span v-if="this.fetchedFollowers">{{this.fetchedFollowers}} Followers</span>
                 </v-col>
                 <v-col cols="6">
                 <v-progress-linear
@@ -83,6 +83,7 @@
 </template>
 
 <script>
+
     module.exports = {
         data: function () {
             return {
@@ -100,7 +101,8 @@
                     emailMatch: () => (`The email and password you entered don't match`),
                 },
                 errorMessage: "",
-                errorIsVisible: false
+                errorIsVisible: false,
+                fetchedFollowers: 0
             }
         },
         computed: {
@@ -135,7 +137,7 @@
                     data: {
                         loginName: this.loginName,
                         password: this.password,
-                        searchUser: this.searchUser,
+                        searchUser: this.searchUser
                     }
                 }).then((response) => {
                     let batchId = response.data.batch_id;
@@ -150,8 +152,12 @@
                 });
 
             }
-
-            
+        },
+        created: function(){
+            let self = this;
+            socket.on('batchStatus', function(socket) {
+                self.fetchedFollowers = socket.fetched
+            });
         }
     };
 </script>
