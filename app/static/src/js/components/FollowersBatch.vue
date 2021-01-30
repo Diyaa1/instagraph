@@ -23,14 +23,14 @@
                 @page-count="pageCount = $event"
                 hide-default-footer
             >
-                <template v-slot:item.profile_pic_url="{ item }">                    
+                <!-- <template v-slot:item.profile_pic_url="{ item }">                    
                     <v-img
                         :lazy-src="item.profile_pic_url"
                         max-height="150"
                         max-width="250"
                         :src="item.profile_pic_url"
                     ></v-img>
-                </template>
+                </template> -->
             </v-data-table>
             <div class="text-center pt-2">
                 <v-pagination
@@ -49,11 +49,11 @@
                 searching: false,
                 followers: [],
                 headers: [
-                    { text: 'Id', value: 'id' },
+                    { text: 'User Id', value: 'userid' },
                     { text: 'User Name', value: 'username' },
                     { text: 'Full Name', value: 'full_name' },
                     { text: 'Follower For', value: 'follower_for' },
-                    { text: 'Profile Picture', value: 'profile_pic_url' },
+                    // { text: 'Profile Picture', value: 'profile_pic_url' },
                 ],
                 batchId: null,
                 pageCount: 10,

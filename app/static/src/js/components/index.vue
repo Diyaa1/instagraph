@@ -1,20 +1,55 @@
 <template>
+  <div>
     <v-banner
-        elevation="5"
+        elevation="2"
         single-line
         sticky
     >
       Welcome to instagraph dashboard
     </v-banner>
+    <v-card class="mx-auto" elevation="2" style="margin-top: 20px;" tile>
+        <v-list-item-group
+            active-class="none"
+        >
+        <v-list-item v-for="item in batches" :key="item.id" two-line @click="openBatch(item.id)">
+            <v-list-item-content>
+            <v-list-item-title style="font-weight: bolder;">Batch {{ item.id }}</v-list-item-title>
+            <v-list-item-subtitle>User {{ item.user }} - {{ item.created_at }}</v-list-item-subtitle>
+            </v-list-item-content>
+        </v-list-item>
+      </v-list-item-group>
+    </v-card>
+  </div>
 </template>
 
 <script>
-module.exports = {
-  data: function() {
-    return {
+    module.exports = {
+        data: function () {
+            return {
+                batches: []
+            };
+        },
+        methods:{
+            openBatch(batchId){
+                this.$router.push({ name: 'FollowersBatch', params: { batchId } })
+            }
+        },
+        created() {
+            let self = this;
+            this.batchId = this.$route.params.batchId;
+            this.searching = true;
+            axios({
+                method: 'get',
+                url: '/followers/batches/',
+                data: {
+                }
+            }).then((response) => {
+                self.batches = response.data.batches;
+            }, (error) => {
+                console.log(error);
+            });
+        },
     };
-  }
-};
 </script>
 
 <style scoped>

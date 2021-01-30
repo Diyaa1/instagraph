@@ -30,7 +30,7 @@ def fetchFollowers( username, password, searchedUser):
 
     L.login(username, password)  # (login)
 
-    batch = Batch( created_at = datetime.utcnow())
+    batch = Batch( user = searchedUser ,created_at = datetime.utcnow())
     db.session.add(batch)
     db.session.commit()
 
@@ -38,7 +38,7 @@ def fetchFollowers( username, password, searchedUser):
     profile = instaloader.Profile.from_username(L.context, searchedUser)
     
     for follower in profile.get_followers():
-        followerObject = Follower( username = follower.username, full_name = follower.full_name, profile_pic_url = follower.profile_pic_url, follower_for = searchedUser, batch_id = batch.id )
+        followerObject = Follower(userid = follower.userid ,username = follower.username, full_name = follower.full_name, follower_for = searchedUser, batch_id = batch.id )
         db.session.add(followerObject)
         
     db.session.commit()
@@ -107,7 +107,17 @@ def batches(batch_id = 0):
     data = {
         'followers' : [z.to_json() for z in followers]
     }
-    print(followers)
+    resp = jsonify(data)
+    resp.status_code = 200
+    return resp
+
+@mod_followers.route('/batches/', methods = [ 'GET' ])
+@login_required
+def all_batches(batch_id = 0):
+    batches = Batch.query.order_by(Batch.id.desc()).all()
+    data = {
+        'batches' :  [z.to_json() for z in batches]
+    }
     resp = jsonify(data)
     resp.status_code = 200
     return resp
