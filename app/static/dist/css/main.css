@@ -34,7 +34,7 @@ body{
     color: black;
 }
 
-.main-drawer .v-list-item .v-list-item__subtitle, .v-list-item .v-list-item__title {
+.main-drawer .v-list-item .v-list-item__subtitle{
     line-height: 1.2;
     font-size: 21px;
     padding: 9px;

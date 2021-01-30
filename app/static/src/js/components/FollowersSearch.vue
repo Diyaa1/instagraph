@@ -108,7 +108,8 @@
                         searchUser: this.searchUser,
                     }
                 }).then((response) => {
-                    console.log(response);
+                    let batchId = response.data.batch_id;
+                    this.$router.push({ name: 'FollowersBatch', params: { batchId } })
                 }, (error) => {
                     console.log(error);
                 });

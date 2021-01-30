@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import vuetify from './plugins/vuetify'
 import Index from './components/index'
 import FollowersSearch from './components/FollowersSearch'
+import FollowersBatch from './components/FollowersBatch'
 
 // Define global packages
 window.axios = require('axios');
@@ -17,6 +18,7 @@ Vue.use(VueRouter)
 const routes = [
   { path: '/', component: Index, name: "Index" },
   { path: '/followers', component: FollowersSearch, name: "Followers" },
+  { path: '/followers-batch/:batchId', component: FollowersBatch, name: "FollowersBatch" },
 ]
 
 // 3. Create the router instance and pass the `routes` option
