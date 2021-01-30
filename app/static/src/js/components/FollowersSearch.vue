@@ -1,58 +1,63 @@
 <template>
-    <v-card class="mx-auto my-12" max-width="600" :loading="searching" :disabled="searching" ref="form">
-        <template slot="progress">
-            <v-progress-linear color="deep-purple" height="10" indeterminate></v-progress-linear>
-        </template>
+    <div>
+        <v-card class="mx-auto my-12" max-width="600" :loading="searching" :disabled="searching" ref="form">
+            <template slot="progress">
+                <v-progress-linear color="deep-purple" height="10" indeterminate></v-progress-linear>
+            </template>
 
-        <v-img height="250" src="/images/instagram.png"></v-img>
+            <v-img height="250" src="/images/instagram.png"></v-img>
 
-        <v-card-title>Search Form</v-card-title>
+            <v-card-title>Search Form</v-card-title>
 
-        <v-card-text>
-            <v-row>
-                <v-col cols="12" md="6">
-                    <v-text-field 
-                        ref="loginName"
-                        v-model="loginName"  
-                        :rules="[rules.required]"
-                        label="Login Name" 
-                        required
+            <v-card-text>
+                <v-row>
+                    <v-col cols="12" md="6">
+                        <v-text-field 
+                            ref="loginName"
+                            v-model="loginName"  
+                            :rules="[rules.required]"
+                            label="Login Name" 
+                            required
+                        ></v-text-field>
+                    </v-col>    
+
+                    <v-col cols="12" md="6">
+                        <v-text-field
+                            ref="password"
+                            v-model="password"
+                            :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                            :rules="[rules.required]"
+                            :type="show1 ? 'text' : 'password'"
+                            name="input-10-1"
+                            label="Password"
+                            @click:append="show1 = !show1"
                     ></v-text-field>
-                </v-col>    
+                    </v-col>
 
-                <v-col cols="12" md="6">
-                    <v-text-field
-                        ref="password"
-                        v-model="password"
-                        :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
-                        :rules="[rules.required]"
-                        :type="show1 ? 'text' : 'password'"
-                        name="input-10-1"
-                        label="Password"
-                        @click:append="show1 = !show1"
-                  ></v-text-field>
-                </v-col>
+                    <v-col cols="12" md="12">
+                        <v-text-field 
+                            ref="searchUser"
+                            v-model="searchUser"  
+                            :rules="[rules.required]"
+                            label="Searched User" 
+                            required
+                        ></v-text-field>
+                    </v-col>    
+                </v-row>
+            </v-card-text>
 
-                <v-col cols="12" md="12">
-                    <v-text-field 
-                        ref="searchUser"
-                        v-model="searchUser"  
-                        :rules="[rules.required]"
-                        label="Searched User" 
-                        required
-                    ></v-text-field>
-                </v-col>    
-            </v-row>
-        </v-card-text>
+            <v-divider class="mx-4"></v-divider>
 
-        <v-divider class="mx-4"></v-divider>
-
-        <v-card-actions>
-            <v-btn color="deep-purple lighten-2" text @click="search">
-                Search
-            </v-btn>
-        </v-card-actions>
-    </v-card>
+            <v-card-actions>
+                <v-btn color="deep-purple lighten-2" text @click="search">
+                    Search
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+        <v-alert max-width="600" style="margin:0 auto" type="error" :value="errorIsVisible">
+            {{ errorMessage }}
+        </v-alert>
+    </div>
 </template>
 
 <script>
@@ -72,6 +77,8 @@
                     min: v => v.length >= 8 || 'Min 8 characters',
                     emailMatch: () => (`The email and password you entered don't match`),
                 },
+                errorMessage: "",
+                errorIsVisible: false
             }
         },
         computed: {
@@ -111,7 +118,12 @@
                     let batchId = response.data.batch_id;
                     this.$router.push({ name: 'FollowersBatch', params: { batchId } })
                 }, (error) => {
-                    console.log(error);
+                    console.log(error.response);
+                    let data = error.response.data;
+                    let code = data.code;
+                    this.errorIsVisible = true;
+                    this.errorMessage = data.message;
+                    this.searching = false;
                 });
 
             }
