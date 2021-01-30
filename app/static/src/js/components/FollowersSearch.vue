@@ -1,6 +1,28 @@
 <template>
     <div>
-        <v-card class="mx-auto my-12" max-width="600" :loading="searching" :disabled="searching" ref="form">
+        <v-container style="height: 400px;" v-if="searching">
+            <v-row
+                class="fill-height"
+                align-content="center"
+                justify="center"
+            >
+                <v-col
+                class="subtitle-1 text-center"
+                cols="12"
+                >
+                    Batch in progress
+                </v-col>
+                <v-col cols="6">
+                <v-progress-linear
+                    color="deep-purple accent-4"
+                    indeterminate
+                    rounded
+                    height="12"
+                ></v-progress-linear>
+                </v-col>
+            </v-row>
+        </v-container>
+        <v-card v-if="!searching" class="mx-auto my-12" max-width="600" :loading="searching" :disabled="searching" ref="form">
             <template slot="progress">
                 <v-progress-linear color="deep-purple" height="10" indeterminate></v-progress-linear>
             </template>
@@ -92,7 +114,8 @@
         },
         methods: {
             search: function () {
-                this.formHasErrors = false
+                this.formHasErrors = false;
+                this.errorIsVisible = false;
 
                 Object.keys(this.form).forEach(f => {
                 if (!this.form[f]) 

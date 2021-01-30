@@ -34,6 +34,7 @@ let app = new Vue({
   delimiters : ['[[', ']]'],
   data: () => ({
     items: [
+      ['mdi-view-dashboard', 'Dashboard', 'Index'],
       ['mdi-account-search-outline', 'Search Followers', "Followers"],
     ],
     drawer: false,

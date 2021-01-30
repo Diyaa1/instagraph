@@ -1,14 +1,12 @@
 # Import flask dependencies
 from flask import Blueprint, request, render_template, \
                   flash, g, session, redirect, url_for, abort, jsonify
-
 from datetime import datetime
-
-# Import password / encryption helper tools
-from werkzeug.security import check_password_hash, generate_password_hash
-
+# Get InstaLoader instance
+from instaloader import instaloader, BadCredentialsException, InvalidArgumentException, TwoFactorAuthRequiredException, \
+    ProfileNotExistsException
 # Import the database object from the main app module
-from app import db, SQLAlchemyUserDatastore, Security, app, login_required
+from app import db, login_required
 
 # Import module forms
 from app.mod_followers.forms import SearchFollowersForm
@@ -16,15 +14,10 @@ from app.mod_followers.forms import SearchFollowersForm
 # Import module models (i.e. User)
 from app.mod_followers.models import Follower, Batch
 
-# Get InstaLoader instance
-from instaloader import instaloader, BadCredentialsException, InvalidArgumentException, TwoFactorAuthRequiredException, \
-    ProfileNotExistsException
-
 L = instaloader.Instaloader()
 
 # Define the blueprint: 'followers', set its url prefix: app.url/followers
 mod_followers = Blueprint('followers', __name__, url_prefix='/followers')
-
 
 def fetchFollowers( username, password, searchedUser):
 
@@ -35,18 +28,23 @@ def fetchFollowers( username, password, searchedUser):
     db.session.commit()
 
     # Obtain profile metadata
-    profile = instaloader.Profile.from_username(L.context, searchedUser)
-    
+    profile = instaloader.Profile.from_username(L.context, searchedUser) 
     for follower in profile.get_followers():
-        followerObject = Follower(userid = follower.userid ,username = follower.username, full_name = follower.full_name, follower_for = searchedUser, batch_id = batch.id )
+        followerObject = Follower(userid = follower.userid,
+            username = follower.username,
+            full_name = follower.full_name,
+            follower_for = searchedUser,
+            batch_id = batch.id 
+        )
         db.session.add(followerObject)
-        
+
     db.session.commit()
     return batch.id
 
 @mod_followers.route('/', methods = [ 'POST' ])
 @login_required
 def followers():
+    """Route for starting fetching followers from instagram"""
     form = SearchFollowersForm()
     if form.validate_on_submit():
         try:
@@ -89,8 +87,7 @@ def followers():
             }
             resp = jsonify(message)
             resp.status_code = 400
-            return resp
-            
+            return resp         
     else:
         message = {
             'message': 'There are some validation errors',
@@ -98,11 +95,11 @@ def followers():
         }
         resp = jsonify(message)
         resp.status_code = 400
-        return resp
-        
+        return resp       
 @mod_followers.route('/batches/<batch_id>', methods = [ 'GET' ])
 @login_required
 def batches(batch_id = 0):
+    """Route for getting the followers for a batch"""
     followers = Follower.query.filter_by(batch_id = batch_id ).all()
     data = {
         'followers' : [z.to_json() for z in followers]
@@ -114,6 +111,7 @@ def batches(batch_id = 0):
 @mod_followers.route('/batches/', methods = [ 'GET' ])
 @login_required
 def all_batches(batch_id = 0):
+    """Route for getting all batches"""
     batches = Batch.query.order_by(Batch.id.desc()).all()
     data = {
         'batches' :  [z.to_json() for z in batches]

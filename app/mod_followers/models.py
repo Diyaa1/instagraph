@@ -6,6 +6,7 @@ class Batch(db.Model):
     created_at = db.Column(db.DateTime())
 
     def to_json(self):
+        """Convert the model to dictionary for ease json conversion"""
         return {
             "id": self.id,
             "user": self.user,
@@ -22,6 +23,7 @@ class Follower(db.Model):
     batch_id = db.Column(db.Integer(), db.ForeignKey('batch.id'))
 
     def to_json(self):
+        """Convert the model to dictionary for ease json conversion"""
         return {
             "id": self.id,
             "userid": self.userid,
