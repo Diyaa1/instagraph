@@ -7,7 +7,7 @@ import FollowersBatch from './components/FollowersBatch'
 import io from 'socket.io-client';
 // Define global packages
 window.axios = require('axios');
-window.socket = io("http://localhost:5000");
+window.socket = io("http://followerspicker:80");
 
 
 

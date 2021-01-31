@@ -18,12 +18,12 @@ THREADS_PER_PAGE = 4
 
 # Use a secure, unique and absolutely secret key for
 # signing the data. 
-CSRF_SESSION_KEY = "secret"
+CSRF_SESSION_KEY = "hVeOzxiyWpNkYTa0jCRVD7K57LDMTxrA"
 
 # Secret key for signing cookies
-SECRET_KEY = "secret"
+SECRET_KEY = "NS1pv2W7AaPVR3X5hGuxUyLdZ7vVJdK6"
 
-SECURITY_PASSWORD_SALT = "secret"
+SECURITY_PASSWORD_SALT = "7MfQ8NdpZ1lr8bt4ODAsNrkdiacibBO2"
 
 WTF_CSRF_CHECK_DEFAULT = False
 WTF_CSRF_ENABLED = False

@@ -2,4 +2,4 @@
 from app import app,socketio
 
 # app.run(host='localhost', port=8080, debug=True)
-socketio.run(app, debug=True)
+socketio.run(app, port=80, host='0.0.0.0', debug=True)
