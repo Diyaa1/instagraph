@@ -9,19 +9,17 @@ from werkzeug.security  import check_password_hash, generate_password_hash
 from app import db, SQLAlchemyUserDatastore, Security, app
 
 # Import module forms
-from app.mod_auth.forms import LoginForm
+from app.mod_auth.forms import CustomLoginForm
 
 # Import module models (i.e. User)
 from app.mod_auth.models import User, Role
-
-
 
 # Define the blueprint: 'auth', set its url prefix: app.url/auth
 mod_auth = Blueprint('auth', __name__, url_prefix='/auth')
 
 # Setup Flask-Security
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-security = Security(app, user_datastore)
+security = Security(app, user_datastore, login_form=CustomLoginForm)
 
 # Create a default user on app start if user doesn't exist
 @app.before_first_request
@@ -30,6 +28,3 @@ def create_user():
     if not exists:
         user_datastore.create_user(email='deaalmhamedd@gmail.com', password='password')
         db.session.commit()
-
-
-

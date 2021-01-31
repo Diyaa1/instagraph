@@ -155,9 +155,6 @@
         },
         created: function(){
             let self = this;
-            socket.on('batchStatus', function(socket) {
-                self.fetchedFollowers = socket.fetched
-            });
         }
     };
 </script>

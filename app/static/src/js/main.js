@@ -4,13 +4,9 @@ import vuetify from './plugins/vuetify'
 import Index from './components/index'
 import FollowersSearch from './components/FollowersSearch'
 import FollowersBatch from './components/FollowersBatch'
-import io from 'socket.io-client';
+
 // Define global packages
 window.axios = require('axios');
-window.socket = io("https://followerspicker.com/");
-
-
-
 Vue.use(VueRouter)
 
 // 2. Define some routes
