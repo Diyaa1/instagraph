@@ -23,36 +23,43 @@ mod_followers = Blueprint('followers', __name__, url_prefix='/followers')
 @celery.task()
 def fetchFollowers( batch_id, username, password, searchedUser):
 
-    L.login(username, password)  # (login)
-    batch = Batch.query.get(batch_id)
-    batch.status="WORKING"
-    db.session.commit()
+    try:
+        L.login(username, password)  # (login)
+        batch = Batch.query.get(batch_id)
+        batch.status="WORKING"
+        db.session.commit()
 
-    # Obtain profile metadata
-    profile = instaloader.Profile.from_username(L.context, searchedUser) 
-    fetched_followers_count = 0
-    for follower in profile.get_followers():
-        followerObject = Follower(userid = follower.userid,
-            username = follower.username,
-            full_name = follower.full_name,
-            follower_for = searchedUser,
-            batch_id = batch.id 
-        )
-        db.session.add(followerObject)
-        fetched_followers_count = fetched_followers_count + 1
+        # Obtain profile metadata
+        profile = instaloader.Profile.from_username(L.context, searchedUser) 
+        fetched_followers_count = 0
+        for follower in profile.get_followers():
+            followerObject = Follower(userid = follower.userid,
+                username = follower.username,
+                full_name = follower.full_name,
+                follower_for = searchedUser,
+                batch_id = batch.id 
+            )
+            db.session.add(followerObject)
+            fetched_followers_count = fetched_followers_count + 1
 
-        #commit and update on each 50 followers
-        if(fetched_followers_count % 50 == 0):
-            batch.fetched_count = fetched_followers_count
-            db.session.commit()
+            #commit and update on each 50 followers
+            if(fetched_followers_count % 50 == 0):
+                batch.fetched_count = fetched_followers_count
+                db.session.commit()
 
-    #update on finish
-    batch = Batch.query.get(batch.id)
-    batch.fetched_count = fetched_followers_count
-    batch.status="COMPLETED"
-    db.session.commit()
+        #update on finish
+        batch = Batch.query.get(batch.id)
+        batch.fetched_count = fetched_followers_count
+        batch.status="COMPLETED"
+        db.session.commit()
+        return batch.id
+    except Exception:
+        batch = Batch.query.get(batch_id)
+        batch.status="FAILED"
+        db.session.commit()
+        return -1    
 
-    return batch.id
+
 
 @mod_followers.route('/', methods = [ 'POST' ])
 @login_required
@@ -122,8 +129,10 @@ def followers():
 def batches(batch_id = 0):
     """Route for getting the followers for a batch"""
     followers = Follower.query.filter_by(batch_id = batch_id ).all()
+    followers_count = Follower.query.filter_by(batch_id = batch_id ).count()
     data = {
-        'followers' : [z.to_json() for z in followers]
+        'followers' : [z.to_json() for z in followers],
+        'followers_count' : followers_count
     }
     resp = jsonify(data)
     resp.status_code = 200

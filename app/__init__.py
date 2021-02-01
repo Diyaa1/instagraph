@@ -25,7 +25,7 @@ def make_celery(app):
     celery = Celery(
         app.import_name,
         backend='rpc',
-        broker='amqp://root:root@localhost:5672/vhost'
+        broker='amqp://root:246879513@localhost:5672/vhost'
     )
     celery.conf.update(app.config)
 
