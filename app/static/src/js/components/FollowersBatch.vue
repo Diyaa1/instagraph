@@ -149,7 +149,7 @@
                 console.log(response.data);
                 self.followers = response.data.followers;
                 self.followersCount = response.data.followers_count;
-                if(response.data.followersCount){
+                if(response.data.followers_count){
                     self.searcheduser = response.data.followers[0].follower_for;
                 }
                 self.searching = false
