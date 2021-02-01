@@ -6,7 +6,7 @@ from datetime import datetime
 from instaloader import instaloader, BadCredentialsException, InvalidArgumentException, TwoFactorAuthRequiredException, \
     ProfileNotExistsException
 # Import the database object from the main app module
-from app import db, login_required
+from app import db, celery, login_required
 
 # Import module forms
 from app.mod_followers.forms import SearchFollowersForm
@@ -19,12 +19,13 @@ L = instaloader.Instaloader()
 # Define the blueprint: 'followers', set its url prefix: app.url/followers
 mod_followers = Blueprint('followers', __name__, url_prefix='/followers')
 
-def fetchFollowers( username, password, searchedUser):
+
+@celery.task()
+def fetchFollowers( batch_id, username, password, searchedUser):
 
     L.login(username, password)  # (login)
-
-    batch = Batch( user = searchedUser ,created_at = datetime.utcnow())
-    db.session.add(batch)
+    batch = Batch.query.get(batch_id)
+    batch.status="WORKING"
     db.session.commit()
 
     # Obtain profile metadata
@@ -40,7 +41,17 @@ def fetchFollowers( username, password, searchedUser):
         db.session.add(followerObject)
         fetched_followers_count = fetched_followers_count + 1
 
+        #commit and update on each 50 followers
+        if(fetched_followers_count % 50 == 0):
+            batch.fetched_count = fetched_followers_count
+            db.session.commit()
+
+    #update on finish
+    batch = Batch.query.get(batch.id)
+    batch.fetched_count = fetched_followers_count
+    batch.status="COMPLETED"
     db.session.commit()
+
     return batch.id
 
 @mod_followers.route('/', methods = [ 'POST' ])
@@ -50,10 +61,18 @@ def followers():
     form = SearchFollowersForm()
     if form.validate_on_submit():
         try:
-            batch_id = fetchFollowers(form.loginName.data, form.password.data, form.searchUser.data)
+            #check login & user before creating task both may throw exceptions catched below
+            L.login(form.loginName.data, form.password.data)  # (login)
+            instaloader.Profile.from_username(L.context, form.searchUser.data)
+
+            batch = Batch( user = form.searchUser.data ,created_at = datetime.utcnow(), status="DISPATCHED", fetched_count=0)
+            db.session.add(batch)
+            db.session.commit()
+
+            fetchFollowers.delay(batch.id, form.loginName.data, form.password.data, form.searchUser.data)
             message = {
-                'message': 'Followers Fetched Successfuly',
-                'batch_id' : batch_id
+                'message': 'Followers Batch Started',
+                'batch_id': batch.id
             }
             resp = jsonify(message)
             resp.status_code = 200
@@ -119,5 +138,15 @@ def all_batches(batch_id = 0):
         'batches' :  [z.to_json() for z in batches]
     }
     resp = jsonify(data)
+    resp.status_code = 200
+    return resp
+
+
+@mod_followers.route('/batches/<batch_id>/status', methods = [ 'GET' ])
+@login_required
+def batcheStatus(batch_id = 0):
+    """Route for status of followers batch"""
+    batch = Batch.query.get(batch_id)
+    resp = jsonify(batch.to_json())
     resp.status_code = 200
     return resp

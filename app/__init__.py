@@ -9,6 +9,8 @@ from flask_security import Security, SQLAlchemyUserDatastore, \
 
 from flask_wtf.csrf import CSRFProtect, generate_csrf
 
+from celery import Celery
+
 # Define the WSGI application object
 app = Flask(__name__, static_url_path="", static_folder="static")
 
@@ -18,6 +20,24 @@ app.config.from_object('config')
 # Define the database object which is imported
 # by modules and controllers
 db = SQLAlchemy(app)
+
+def make_celery(app):
+    celery = Celery(
+        app.import_name,
+        backend='rpc',
+        broker='amqp://root:root@localhost:5672/vhost'
+    )
+    celery.conf.update(app.config)
+
+    class ContextTask(celery.Task):
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
+
+    celery.Task = ContextTask
+    return celery
+
+celery = make_celery(app)
 
 # Sample HTTP error handling
 @app.errorhandler(404)
@@ -37,6 +57,7 @@ app.register_blueprint(followers_module)
 # Build the database:
 # This will create the database file using SQLAlchemy
 db.create_all()
+
 
 # Views
 @app.route('/')

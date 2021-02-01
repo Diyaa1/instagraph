@@ -140,8 +140,8 @@
                         searchUser: this.searchUser
                     }
                 }).then((response) => {
-                    let batchId = response.data.batch_id;
-                    this.$router.push({ name: 'FollowersBatch', params: { batchId } })
+                    this.batchId = response.data.batch_id;
+                    this.statusCheckLoop();
                 }, (error) => {
                     console.log(error.response);
                     let data = error.response.data;
@@ -149,6 +149,22 @@
                     this.errorIsVisible = true;
                     this.errorMessage = data.message;
                     this.searching = false;
+                });
+
+            },
+            statusCheckLoop:function(){
+                axios({
+                    method: 'get',
+                    url: '/followers/batches/' + this.batchId + "/status",
+                }).then((response) => {
+                    if(response.data.status == "WORKING" || response.data.status == "DISPATCHED"){
+                        this.fetchedFollowers = response.data.fetched_count
+                        setTimeout(this.statusCheckLoop, 4000);
+                    }else{
+                        this.$router.push({ name: 'FollowersBatch', params: { batchId : this.batchId } })
+                    }
+                }, (error) => {
+                    console.log(error);
                 });
 
             }
