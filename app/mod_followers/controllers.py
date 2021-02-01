@@ -4,7 +4,7 @@ from flask import Blueprint, request, render_template, \
 from datetime import datetime
 # Get InstaLoader instance
 from instaloader import instaloader, BadCredentialsException, InvalidArgumentException, TwoFactorAuthRequiredException, \
-    ProfileNotExistsException
+    ProfileNotExistsException, ConnectionException
 # Import the database object from the main app module
 from app import db, celery, login_required
 
@@ -115,7 +115,16 @@ def followers():
             }
             resp = jsonify(message)
             resp.status_code = 400
-            return resp         
+            return resp
+        except ConnectionException as err:
+            message = {
+                'message': str(err),
+                'code': 'ConnectionError'
+            }
+            resp = jsonify(message)
+            resp.status_code = 400
+            return resp
+
     else:
         message = {
             'message': 'There are some validation errors',
