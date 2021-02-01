@@ -4,6 +4,7 @@ import vuetify from './plugins/vuetify'
 import Index from './components/index'
 import FollowersSearch from './components/FollowersSearch'
 import FollowersBatch from './components/FollowersBatch'
+import Batches from './components/Batches'
 
 // Define global packages
 window.axios = require('axios');
@@ -17,6 +18,7 @@ Vue.use(VueRouter)
 const routes = [
   { path: '/', component: Index, name: "Index" },
   { path: '/followers', component: FollowersSearch, name: "Followers" },
+  { path: '/batches', component: Batches, name: "Batches" },
   { path: '/followers-batch/:batchId', component: FollowersBatch, name: "FollowersBatch" },
 ]
 
@@ -35,6 +37,7 @@ let app = new Vue({
     items: [
       ['mdi-view-dashboard', 'Dashboard', 'Index'],
       ['mdi-account-search-outline', 'Search Followers', "Followers"],
+      ['mdi-database', 'Batches', "Batches"],
     ],
     drawer: false,
     loggingOut: false
