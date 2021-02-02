@@ -106,9 +106,9 @@
                                     Actions
                                 </v-btn>
                             </template>
-                            <v-list>
-                                <v-list-item class="custom-menu-item">
-                                    <v-list-item-title @click="lookWinner()">Random Winner</v-list-item-title>
+                            <v-list style="padding:0">
+                                <v-list-item class="custom-menu-item" style="padding:2px 10px" @click="lookWinner()">
+                                    <v-list-item-title>Random Winner</v-list-item-title>
                                 </v-list-item>
                             </v-list>
                         </v-menu>
@@ -150,7 +150,7 @@
                 ></v-pagination>
               </div>
         </v-card>
-        <v-card v-if="lookingForWinner" max-width="550" style="margin:0 auto; background:transparent; box-shadow: none;
+        <v-card v-if="lookingForWinner && !winnerIsFound" max-width="550" style="margin:0 auto; background:transparent; box-shadow: none;
             margin: 0px auto;
             border: 6px solid #f4f4f4;
             background: #f4f4f4;
@@ -159,6 +159,45 @@
                 <lottie :options="animationSettings" v-on:animCreated="handleAnimation"/>
             </div>
             <h1 style="text-align:center; bottom:20px; font-size: 33px; font-weight: lighter; color: #333;">Looking for Winner</h1>
+        </v-card>
+        <h1 v-if="winnerIsFound" class="mx-auto my-12 gradient-text" style="max-width:500">The Winner is ...</h1>
+        <v-card
+            class="mx-auto my-12"
+            max-width="500"
+            v-if="winnerIsFound"
+        >
+            <template slot="progress">
+            <v-progress-linear
+                color="deep-purple"
+                height="10"
+                indeterminate
+            ></v-progress-linear>
+            </template>
+
+            <v-img
+                height="250"
+                :src="winner.profile_pic_url"
+            ></v-img>
+
+            <v-card-title> {{winner.username}}</v-card-title>
+
+            <v-divider class="mx-4"></v-divider>
+
+            <v-card-title>Congratulations for our winner 🔥🔥🔥</v-card-title>
+
+            <v-card-text>
+                <div class="my-4 subtitle-1">
+                    {{winner.full_name}}
+                </div>
+
+                <div>{{winner.userid}}</div>
+            </v-card-text>
+            
+            <v-card-text>
+            </v-card-text>
+
+            <v-card-actions>
+            </v-card-actions>
         </v-card>
     </div>
 </template>
@@ -187,7 +226,14 @@
                 itemsPerPage: 10,
                 followersCount: 0,
                 searcheduser:null,
-                lookingForWinner: false
+                lookingForWinner: false,
+                winnerIsFound: false,
+                winner: {
+                    profile_pic_url: null,
+                    username: null,
+                    full_name: null,
+                    userid: null
+                }
             }
         },components: {
             'lottie': Lottie
@@ -196,7 +242,23 @@
         },
         methods: {
             lookWinner(){
+                let self = this;
                 this.lookingForWinner = true;
+                axios({
+                        method: 'get',
+                        url: '/followers/batches/' + this.batchId + '/random',
+                        data: {}
+                    }).then((response) => {
+                        let data = response.data;
+                        this.winnerIsFound = true;
+                        this.winner.profile_pic_url = data.winner.profile_pic_url;
+                        this.winner.username = data.winner.username;
+                        this.winner.full_name = data.winner.full_name;
+                        this.winner.userid = data.winner.userid;
+                    }, (error) => {
+                        console.log(error);
+                    });
+                
             },
             handleAnimation(anim){
                 this.anim = anim;

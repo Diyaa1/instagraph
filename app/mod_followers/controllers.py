@@ -9,6 +9,8 @@ from instaloader import instaloader, BadCredentialsException, InvalidArgumentExc
 # Import the database object from the main app module
 from app import db, celery, limiter, login_required
 
+from sqlalchemy import func
+
 # Import module forms
 from app.mod_followers.forms import SearchFollowersForm
 
@@ -192,5 +194,19 @@ def batcheStatus(batch_id = 0):
     """Route for status of followers batch"""
     batch = Batch.query.get(batch_id)
     resp = jsonify(batch.to_json())
+    resp.status_code = 200
+    return resp
+
+@mod_followers.route('/batches/<batch_id>/random', methods = [ 'GET' ])
+@login_required
+def getWinner(batch_id = 0):
+    """Route for getting the followers for a batch"""
+    follower = Follower.query.filter_by(batch_id = batch_id ).order_by(func.random()).first()
+    profile = instaloader.Profile.from_username(L.context, follower.username)
+    data = {
+        'winner' : follower.to_json()
+    }
+    data['winner']['profile_pic_url'] = profile.profile_pic_url
+    resp = jsonify(data)
     resp.status_code = 200
     return resp
