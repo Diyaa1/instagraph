@@ -295,7 +295,7 @@
                             this.winner.userid = data.winner.userid;
                             this.anim.stop();
                         }.bind(this));
-                    }.bind(this),15000);
+                    }.bind(this),20000);
 
                 }, (error) => {
                     console.log(error);
