@@ -260,12 +260,18 @@
                     url: '/followers/batches/' + this.batchId + '/random',
                     data: {}
                 }).then((response) => {
-                    let data = response.data;
-                    this.winnerIsFound = true;
-                    this.winner.profile_pic_url = data.winner.profile_pic_url;
-                    this.winner.username = data.winner.username;
-                    this.winner.full_name = data.winner.full_name;
-                    this.winner.userid = data.winner.userid;
+                    setTimeout(function(){
+                        this.anim.playSegments([0, 120], false);
+                        this.anim.addEventListener('loopComplete', function(){
+                            let data = response.data;
+                            this.winnerIsFound = true;
+                            this.winner.profile_pic_url = data.winner.profile_pic_url;
+                            this.winner.username = data.winner.username;
+                            this.winner.full_name = data.winner.full_name;
+                            this.winner.userid = data.winner.userid;
+                        }.bind(this));
+                    }.bind(this),10000);
+
                 }, (error) => {
                     console.log(error);
                 });
