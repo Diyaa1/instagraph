@@ -50,9 +50,12 @@ from app.mod_auth.controllers import mod_auth as auth_module
 # Import a module / component using its blueprint handler variable (mod_auth)
 from app.mod_followers.controllers import mod_followers as followers_module
 
+from app.mod_admin.controllers import mod_admin as admin_module
+
 # Register blueprint(s)
 app.register_blueprint(auth_module)
 app.register_blueprint(followers_module)
+app.register_blueprint(admin_module)
 
 # Build the database:
 # This will create the database file using SQLAlchemy

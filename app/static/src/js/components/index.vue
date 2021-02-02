@@ -14,7 +14,6 @@
     module.exports = {
         data: function () {
             return {
-                batches: []
             };
         },
         methods:{
