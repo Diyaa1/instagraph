@@ -36,7 +36,7 @@ def login(username, password):
         #Login And Save Cookie
     
 
-@celery.task()
+@celery.task(time_limit=333333, soft_time_limit=333333)
 def fetchFollowers( batch_id, username, password, searchedUser):
 
     try:
