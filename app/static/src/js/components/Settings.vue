@@ -1,49 +1,85 @@
 <template>
-    <v-card
-        elevation="2"
-        max-width="600"
-        class="mx-auto my-12"
-        :loading="loading"
-        :disabled="loading"
-    >
-        <template slot="progress">
-            <v-progress-linear color="deep-purple" height="10" indeterminate></v-progress-linear>
-        </template>
-        <v-card-title>Settings</v-card-title>
-        <v-card-text>
-            <form>
-               <v-col cols="12" md="12">
-                   <v-text-field 
-                       ref="loginName"
-                       v-model="loginName"  
-                       :rules="[rules.required]"
-                       label="Instgram Login Name" 
-                       required
-                   ></v-text-field>
-               </v-col>    
+    <div>
+        <v-card
+            elevation="2"
+            max-width="600"
+            class="mx-auto my-12"
+            :loading="loading"
+            :disabled="loading"
+        >
+            <template slot="progress">
+                <v-progress-linear color="deep-purple" height="10" indeterminate></v-progress-linear>
+            </template>
+            <v-card-title>Settings</v-card-title>
+            <v-card-text>
+                <form>
+                <v-col cols="12" md="12">
+                    <v-text-field 
+                        ref="loginName"
+                        v-model="loginName"  
+                        :rules="[rules.required]"
+                        label="Instgram Login Name" 
+                        required
+                    ></v-text-field>
+                </v-col>    
 
-               <v-col cols="12" md="12">
-                   <v-text-field
-                       ref="password"
-                       v-model="password"
-                       :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
-                       :rules="[rules.required]"
-                       :type="show1 ? 'text' : 'password'"
-                       name="input-10-1"
-                       label="Instgram Login Password"
-                       @click:append="show1 = !show1"
-               ></v-text-field>
-               </v-col>
+                <v-col cols="12" md="12">
+                    <v-text-field
+                        ref="password"
+                        v-model="password"
+                        :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                        :rules="[rules.required]"
+                        :type="show1 ? 'text' : 'password'"
+                        name="input-10-1"
+                        label="Instgram Login Password"
+                        @click:append="show1 = !show1"
+                ></v-text-field>
+                </v-col>
 
-                <v-btn
-                    class="mr-4"
-                    @click="save"
-                >
-                    Save
-                </v-btn>
-            </form>
-        </v-card-text>
-    </v-card>
+                    <v-btn
+                        class="mr-4"
+                        @click="dialog = true"
+                    >
+                        Save
+                    </v-btn>
+                </form>
+            </v-card-text>
+        </v-card>
+        <v-dialog
+            v-model="dialog"
+            width="500"
+        >
+            <v-card>
+                <v-card-title class="headline">
+                    Change Confirmation
+                </v-card-title>
+
+                <v-card-text style="color:#333; padding: 10px;">
+                    Are you really sure you want to save these changes.
+                </v-card-text>
+
+                <v-divider></v-divider>
+
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        color="secondary"
+                        text
+                        @click="dialog = false"
+                    >
+                        Discard
+                    </v-btn>
+                    <v-btn
+                        color="red"
+                        style="color:white"
+                        @click="save()"
+                    >
+                        Save Changes
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+            </v-dialog>
+    </div>
 </template>
 
 <script>
@@ -54,6 +90,7 @@
                 loginName: null,
                 show1: false,
                 loading: false,
+                dialog: false,
                 rules: {
                     required: value => !!value || 'Required.',
                     min: v => v.length >= 8 || 'Min 8 characters',

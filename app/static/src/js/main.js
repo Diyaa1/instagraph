@@ -6,13 +6,10 @@ import FollowersSearch from './components/FollowersSearch'
 import FollowersBatch from './components/FollowersBatch'
 import Batches from './components/Batches'
 import Settings from './components/Settings'
-import VueParticles from 'vue-particles'
-
 
 // Define global packages
 window.axios = require('axios');
 Vue.use(VueRouter)
-Vue.use(VueParticles)
 
 // 2. Define some routes
 // Each route should map to a component. The "component" can
