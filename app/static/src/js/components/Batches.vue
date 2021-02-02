@@ -52,8 +52,9 @@
                     return "blue";
                 }else if(status == "COMPLETED"){
                     return "green";
-                }
-                else{
+                } else if(status == "DISPATCHED"){
+                    return "yellow";
+                } else{
                     return "red";
                 }
             },
@@ -62,6 +63,8 @@
                     return "Working";
                 }else if(status == "COMPLETED"){
                     return "Completed";
+                }else if(status == "DISPATCHED"){
+                    return "Waiting For Worker";
                 }
                 else{
                     return "Failed";

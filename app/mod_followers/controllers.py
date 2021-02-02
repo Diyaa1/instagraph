@@ -22,12 +22,25 @@ L = instaloader.Instaloader()
 # Define the blueprint: 'followers', set its url prefix: app.url/followers
 mod_followers = Blueprint('followers', __name__, url_prefix='/followers')
 
+def login(username, password):
+    try:
+        L.load_session_from_file("bsession")
+        username = L.test_login()
+        if not username:
+            #Login And Save Cookie
+            L.login(username, password)
+            L.save_session_to_file("bsession")
+    except FileNotFoundError:
+        L.login(username, password)
+        L.save_session_to_file("bsession")
+        #Login And Save Cookie
+    
 
 @celery.task()
 def fetchFollowers( batch_id, username, password, searchedUser):
 
     try:
-        L.login(username, password)  # (login)
+        login(username, password)  # (login)
         batch = Batch.query.get(batch_id)
         batch.status="WORKING"
         db.session.commit()
@@ -77,14 +90,19 @@ def followers():
             password = Setting.query.get("PASSWORD").value
 
             #check login & user before creating task both may throw exceptions catched below
-            L.login(loginName, password)  # (login)
+            login(loginName, password)  # (login)
             instaloader.Profile.from_username(L.context, form.searchUser.data)
 
             batch = Batch( user = form.searchUser.data ,created_at = datetime.utcnow(), status="DISPATCHED", fetched_count=0)
             db.session.add(batch)
-            db.session.commit()
+            #send changes to database without commit
+            db.session.flush()
 
-            fetchFollowers.delay(batch.id, loginName, password, form.searchUser.data)
+            task = fetchFollowers.delay(batch.id, loginName, password, form.searchUser.data)
+
+            batch.task_id = task.id
+            db.session.commit()
+            
             message = {
                 'message': 'Followers Batch Started',
                 'batch_id': batch.id

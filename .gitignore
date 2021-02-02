@@ -3,3 +3,4 @@ __pycache__
 env
 app.db
 app/static/node_modules
+bsession

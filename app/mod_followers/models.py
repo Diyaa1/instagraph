@@ -4,6 +4,7 @@ class Batch(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     user = db.Column(db.String(120))
     fetched_count = db.Column(db.Integer())
+    task_id = db.Column(db.String(160)) 
     status = db.Column(db.String(40))
     created_at = db.Column(db.DateTime())
 
@@ -13,6 +14,7 @@ class Batch(db.Model):
             "id": self.id,
             "user": self.user,
             "fetched_count": self.fetched_count,
+            "task_id": self.task_id,
             "status": self.status,
             "created_at": self.created_at
         }

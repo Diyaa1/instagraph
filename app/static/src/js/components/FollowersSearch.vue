@@ -80,7 +80,8 @@
                 },
                 errorMessage: "",
                 errorIsVisible: false,
-                fetchedFollowers: 0
+                fetchedFollowers: 0,
+                terminated: false
             }
         },
         computed: {
@@ -133,6 +134,9 @@
 
             },
             statusCheckLoop:function(){
+                if(this.terminated){
+                    return;
+                }
                 axios({
                     method: 'get',
                     url: '/followers/batches/' + this.batchId + "/status",
@@ -155,6 +159,11 @@
         },
         created: function(){
             let self = this;
+            this.terminated = false;
+        },
+        beforeRouteLeave (to, from, next) {
+            this.terminated = true;
+            next();
         }
     };
 </script>
