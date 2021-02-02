@@ -143,7 +143,7 @@
                 }).then((response) => {
                     if(response.data.status == "WORKING"){
                         this.fetchedFollowers = response.data.fetched_count
-                        this.processMsg = "Batch is in process " + this.fetchedFollowers + "Followers fetched" 
+                        this.processMsg = "Batch is in process " + this.fetchedFollowers + " Followers fetched" 
                         setTimeout(this.statusCheckLoop, 4000);
                     }else if(response.data.status == "DISPATCHED"){
                         this.processMsg = "Batch is dispatched and waiting for worker";
