@@ -1,6 +1,7 @@
-body{
+body, #app .v-application  {
     font-family: "Quicksand";
 }
+
 .deep-purple{
     background: linear-gradient( -150deg, rgba(36,51,169,1) 0%,rgba(234,49,124,1) 71%,rgba(234,49,124,1) 100%);
 }

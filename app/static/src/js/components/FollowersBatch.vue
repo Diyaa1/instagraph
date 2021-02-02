@@ -65,14 +65,57 @@
         background-size: 650%;
     }
 }
+
+.custom-menu-item{
+    cursor: pointer;
+}
 </style>
 <template>
     <div>
-        <v-card class="mx-auto my-12" max-width="1180" :loading="searching" :disabled="searching" ref="form" style="background: transparent !important; box-shadow: none;">
+        <v-card v-if="!lookingForWinner" class="mx-auto my-12" max-width="1180" :loading="searching" :disabled="searching" ref="form" style="background: transparent !important; box-shadow: none;">
             <template slot="progress">
                 <v-progress-linear color="deep-purple" height="10" indeterminate></v-progress-linear>
             </template>
-            <v-card-title><h1 class="gradient-text" v-if="followersCount">{{ followersCount }} Followers for {{searcheduser}}</h1></v-card-title>
+            <v-card-title>
+                <v-row
+                    no-gutters
+                >
+                    <v-col
+                        cols="12"
+                        sm="10"
+                        md="10"
+                    >
+                        <h1 class="gradient-text" v-if="followersCount">{{ followersCount }} Followers for {{searcheduser}}</h1>
+                    </v-col>
+                    <v-col
+                        cols="12"
+                        sm="2"
+                        md="2"
+                        style="width: 100%;"
+                    >
+                        <v-menu offset-y>
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-btn
+                                    color="primary"
+                                    dark
+                                    v-bind="attrs"
+                                    v-on="on"
+                                    class="custom-btn"
+                                    style="width:100%"
+                                >
+                                    Actions
+                                </v-btn>
+                            </template>
+                            <v-list>
+                                <v-list-item class="custom-menu-item">
+                                    <v-list-item-title @click="lookWinner()">Random Winner</v-list-item-title>
+                                </v-list-item>
+                            </v-list>
+                        </v-menu>
+                    </v-col>
+                </v-row>
+                
+            </v-card-title>
             
             <v-text-field
                 :value="itemsPerPage"
@@ -107,13 +150,28 @@
                 ></v-pagination>
               </div>
         </v-card>
+        <v-card v-if="lookingForWinner" max-width="550" style="margin:0 auto; background:transparent; box-shadow: none;
+            margin: 0px auto;
+            border: 6px solid #f4f4f4;
+            background: #f4f4f4;
+            padding: 40px;">
+            <div style="height:50%">
+                <lottie :options="animationSettings" v-on:animCreated="handleAnimation"/>
+            </div>
+            <h1 style="text-align:center; bottom:20px; font-size: 33px; font-weight: lighter; color: #333;">Looking for Winner</h1>
+        </v-card>
     </div>
 </template>
 
 <script>
-    module.exports = {
+    import Lottie from 'vue-lottie';
+    import * as animationData from '../animations/29435-random-things.json';
+
+    export default {
         data: function () {
             return {
+                    animationSettings: {animationData: animationData,
+                },
                 searching: false,
                 followers: [],
                 headers: [
@@ -128,12 +186,22 @@
                 page: 1,
                 itemsPerPage: 10,
                 followersCount: 0,
-                searcheduser:null
+                searcheduser:null,
+                lookingForWinner: false
             }
+        },components: {
+            'lottie': Lottie
         },
         computed: {
         },
         methods: {
+            lookWinner(){
+                this.lookingForWinner = true;
+            },
+            handleAnimation(anim){
+                this.anim = anim;
+                this.anim.playSegments([0,60], true);
+            }
         },
         created() {
             let self = this;
@@ -159,3 +227,17 @@
         },
     };
 </script>
+<style scoped>
+    .v-application .custom-btn {
+        background: #ea317c !important;
+        padding: 0px 27px;
+        height: 38px;
+        font-size: 14px;
+        min-width: 64px;
+    }
+    @media only screen and (max-width: 600px) {
+        .v-application .custom-btn {
+            margin: 27px 0;
+        }
+    }
+</style>
