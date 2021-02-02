@@ -4,6 +4,8 @@ from flask import Blueprint, request, render_template, \
 
 from datetime import datetime
 
+import os
+
 # Import the database object from the main app module
 from app import db, celery, app, login_required
 
@@ -30,6 +32,10 @@ def saveSettings():
         login_password_setting.value = password
 
         db.session.commit()
+        try:
+            os.remove("bsession")
+        except OSError:
+            pass
         #Save Here
         resp = jsonify({
             'msg': 'Saved'
