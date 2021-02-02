@@ -4,6 +4,9 @@ from flask import Flask, render_template
 # Import SQLAlchemy
 from flask_sqlalchemy import SQLAlchemy
 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 from flask_security import Security, SQLAlchemyUserDatastore, \
     UserMixin, RoleMixin, login_required
 
@@ -13,6 +16,7 @@ from celery import Celery
 
 # Define the WSGI application object
 app = Flask(__name__, static_url_path="", static_folder="static")
+limiter = Limiter(app, key_func=get_remote_address)
 
 # Configurations
 app.config.from_object('config')
@@ -25,7 +29,7 @@ def make_celery(app):
     celery = Celery(
         app.import_name,
         backend='rpc',
-        broker='amqp://root:246879513@localhost:5672/vhost'
+        broker='amqp://root:root@localhost:5672/vhost'
     )
     celery.conf.update(app.config)
 

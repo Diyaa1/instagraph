@@ -11,6 +11,4 @@ from wtforms.validators import Required, Email, EqualTo
 # Define the login form (WTForms)
 
 class SearchFollowersForm(Form):
-    loginName    = StringField(u'User Name', [validators.required(), validators.length(max=255)])
     searchUser = StringField(u'Search User', [validators.required(), validators.length(max=255)])
-    password = StringField(u'Password', [validators.required(), validators.length(max=255)])

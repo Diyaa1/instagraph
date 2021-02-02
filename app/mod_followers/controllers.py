@@ -1,18 +1,21 @@
 # Import flask dependencies
 from flask import Blueprint, request, render_template, \
                   flash, g, session, redirect, url_for, abort, jsonify
+
 from datetime import datetime
 # Get InstaLoader instance
 from instaloader import instaloader, BadCredentialsException, InvalidArgumentException, TwoFactorAuthRequiredException, \
     ProfileNotExistsException, ConnectionException
 # Import the database object from the main app module
-from app import db, celery, login_required
+from app import db, celery, limiter, login_required
 
 # Import module forms
 from app.mod_followers.forms import SearchFollowersForm
 
 # Import module models (i.e. User)
 from app.mod_followers.models import Follower, Batch
+
+from app.mod_admin.models import Setting
 
 L = instaloader.Instaloader()
 
@@ -60,7 +63,9 @@ def fetchFollowers( batch_id, username, password, searchedUser):
         return -1    
 
 
-
+@limiter.limit("100/day")
+@limiter.limit("10/hour")
+@limiter.limit("1/minute")
 @mod_followers.route('/', methods = [ 'POST' ])
 @login_required
 def followers():
@@ -68,15 +73,18 @@ def followers():
     form = SearchFollowersForm()
     if form.validate_on_submit():
         try:
+            loginName = Setting.query.get("USER").value
+            password = Setting.query.get("PASSWORD").value
+
             #check login & user before creating task both may throw exceptions catched below
-            L.login(form.loginName.data, form.password.data)  # (login)
+            L.login(loginName, password)  # (login)
             instaloader.Profile.from_username(L.context, form.searchUser.data)
 
             batch = Batch( user = form.searchUser.data ,created_at = datetime.utcnow(), status="DISPATCHED", fetched_count=0)
             db.session.add(batch)
             db.session.commit()
 
-            fetchFollowers.delay(batch.id, form.loginName.data, form.password.data, form.searchUser.data)
+            fetchFollowers.delay(batch.id, loginName, password, form.searchUser.data)
             message = {
                 'message': 'Followers Batch Started',
                 'batch_id': batch.id

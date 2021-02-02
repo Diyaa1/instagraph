@@ -10,7 +10,7 @@
                 class="subtitle-1 text-center"
                 cols="12"
                 >
-                    Batch in progress <span v-if="this.fetchedFollowers">{{this.fetchedFollowers}} Followers</span>
+                    {{processMsg}}
                 </v-col>
                 <v-col cols="6">
                 <v-progress-linear
@@ -33,29 +33,6 @@
 
             <v-card-text>
                 <v-row>
-                    <v-col cols="12" md="6">
-                        <v-text-field 
-                            ref="loginName"
-                            v-model="loginName"  
-                            :rules="[rules.required]"
-                            label="Login Name" 
-                            required
-                        ></v-text-field>
-                    </v-col>    
-
-                    <v-col cols="12" md="6">
-                        <v-text-field
-                            ref="password"
-                            v-model="password"
-                            :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
-                            :rules="[rules.required]"
-                            :type="show1 ? 'text' : 'password'"
-                            name="input-10-1"
-                            label="Password"
-                            @click:append="show1 = !show1"
-                    ></v-text-field>
-                    </v-col>
-
                     <v-col cols="12" md="12">
                         <v-text-field 
                             ref="searchUser"
@@ -94,6 +71,7 @@
                 password: null,
                 loginName: null,
                 searchUser: null,
+                processMsg: "Batch Request Sent",
                 searching:false,
                 rules: {
                     required: value => !!value || 'Required.',
@@ -108,8 +86,6 @@
         computed: {
             form() {
                 return {
-                    loginName: this.loginName,
-                    password: this.password,
                     searchUser: this.searchUser,
                 }
             },
@@ -135,20 +111,24 @@
                     method: 'post',
                     url: '/followers/',
                     data: {
-                        loginName: this.loginName,
-                        password: this.password,
                         searchUser: this.searchUser
                     }
                 }).then((response) => {
                     this.batchId = response.data.batch_id;
                     this.statusCheckLoop();
                 }, (error) => {
-                    console.log(error.response);
-                    let data = error.response.data;
-                    let code = data.code;
-                    this.errorIsVisible = true;
-                    this.errorMessage = data.message;
-                    this.searching = false;
+                    if(error.response.status == 429){
+                        let code = 429;
+                        this.errorIsVisible = true;
+                        this.searching = false;
+                        this.errorMessage = "Only one request can be sent in 1 minute (Wait for 1 minute)"
+                    }else{
+                        let data = error.response.data;
+                        let code = data.code;
+                        this.errorIsVisible = true;
+                        this.errorMessage = data.message;
+                        this.searching = false;
+                    }
                 });
 
             },
@@ -157,8 +137,12 @@
                     method: 'get',
                     url: '/followers/batches/' + this.batchId + "/status",
                 }).then((response) => {
-                    if(response.data.status == "WORKING" || response.data.status == "DISPATCHED"){
+                    if(response.data.status == "WORKING"){
                         this.fetchedFollowers = response.data.fetched_count
+                        this.processMsg = "Batch is in process " + this.fetchedFollowers + "Followers fetched" 
+                        setTimeout(this.statusCheckLoop, 4000);
+                    }else if(response.data.status == "DISPATCHED"){
+                        this.processMsg = "Batch is dispatched and waiting for worker";
                         setTimeout(this.statusCheckLoop, 4000);
                     }else{
                         this.$router.push({ name: 'FollowersBatch', params: { batchId : this.batchId } })
