@@ -69,9 +69,20 @@
 .custom-menu-item{
     cursor: pointer;
 }
+
+.fireworks{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    margin: 0;
+}
 </style>
 <template>
     <div>
+        <canvas class="fireworks"></canvas>
         <v-card v-if="!lookingForWinner" class="mx-auto my-12" max-width="1180" :loading="searching" :disabled="searching" ref="form" style="background: transparent !important; box-shadow: none;">
             <template slot="progress">
                 <v-progress-linear color="deep-purple" height="10" indeterminate></v-progress-linear>
@@ -241,28 +252,28 @@
         computed: {
         },
         methods: {
-            lookWinner(){
+            lookWinner() {
                 let self = this;
                 this.lookingForWinner = true;
                 axios({
-                        method: 'get',
-                        url: '/followers/batches/' + this.batchId + '/random',
-                        data: {}
-                    }).then((response) => {
-                        let data = response.data;
-                        this.winnerIsFound = true;
-                        this.winner.profile_pic_url = data.winner.profile_pic_url;
-                        this.winner.username = data.winner.username;
-                        this.winner.full_name = data.winner.full_name;
-                        this.winner.userid = data.winner.userid;
-                    }, (error) => {
-                        console.log(error);
-                    });
-                
+                    method: 'get',
+                    url: '/followers/batches/' + this.batchId + '/random',
+                    data: {}
+                }).then((response) => {
+                    let data = response.data;
+                    this.winnerIsFound = true;
+                    this.winner.profile_pic_url = data.winner.profile_pic_url;
+                    this.winner.username = data.winner.username;
+                    this.winner.full_name = data.winner.full_name;
+                    this.winner.userid = data.winner.userid;
+                }, (error) => {
+                    console.log(error);
+                });
+
             },
-            handleAnimation(anim){
+            handleAnimation(anim) {
                 this.anim = anim;
-                this.anim.playSegments([0,60], true);
+                this.anim.playSegments([0, 60], true);
             }
         },
         created() {
@@ -286,7 +297,10 @@
             }, (error) => {
                 console.log(error);
             });
+
         },
+        updated (){
+        }
     };
 </script>
 <style scoped>
