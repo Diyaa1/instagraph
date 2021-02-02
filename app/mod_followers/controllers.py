@@ -19,6 +19,8 @@ from app.mod_followers.models import Follower, Batch
 
 from app.mod_admin.models import Setting
 
+import random
+
 L = instaloader.Instaloader()
 
 # Define the blueprint: 'followers', set its url prefix: app.url/followers
@@ -201,7 +203,8 @@ def batcheStatus(batch_id = 0):
 @login_required
 def getWinner(batch_id = 0):
     """Route for getting the followers for a batch"""
-    follower = Follower.query.filter_by(batch_id = batch_id ).order_by(func.random()).first()
+    batch_followers = Follower.query.filter_by(batch_id = batch_id).all()
+    follower = random.choice(batch_followers)
     profile = instaloader.Profile.from_username(L.context, follower.username)
     data = {
         'winner' : follower.to_json()
@@ -210,3 +213,4 @@ def getWinner(batch_id = 0):
     resp = jsonify(data)
     resp.status_code = 200
     return resp
+    

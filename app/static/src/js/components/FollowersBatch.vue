@@ -207,7 +207,20 @@
             <v-card-text>
             </v-card-text>
 
-            <v-card-actions>
+            <v-card-actions style="justify-content: flex-end;">
+                <v-btn
+                    text
+                    @click="lookingForWinner=false; winnerIsFound=false"
+                >
+                    Go Back
+                </v-btn>
+                <v-btn
+                    color="secondary"
+                    @click="relookWinner()"
+                    class="custom-btn"
+                >
+                    Next Winner
+                </v-btn>
             </v-card-actions>
         </v-card>
     </div>
@@ -252,6 +265,17 @@
         computed: {
         },
         methods: {
+            relookWinner(){
+                this.winner = {
+                    profile_pic_url: null,
+                    username: null,
+                    full_name: null,
+                    userid: null
+                }
+                this.winnerIsFound = false;
+                this.lookingForWinner = true;
+                this.lookWinner();
+            },
             lookWinner() {
                 let self = this;
                 this.lookingForWinner = true;
@@ -269,8 +293,9 @@
                             this.winner.username = data.winner.username;
                             this.winner.full_name = data.winner.full_name;
                             this.winner.userid = data.winner.userid;
+                            this.anim.stop();
                         }.bind(this));
-                    }.bind(this),10000);
+                    }.bind(this),15000);
 
                 }, (error) => {
                     console.log(error);
