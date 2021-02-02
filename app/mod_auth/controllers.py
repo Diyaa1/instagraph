@@ -24,7 +24,7 @@ security = Security(app, user_datastore, login_form=CustomLoginForm)
 # Create a default user on app start if user doesn't exist
 @app.before_first_request
 def create_user():
-    exists = db.session.query(db.exists().where(User.email == 'deaalmhamedd@gmail.com')).scalar()
+    exists = db.session.query(db.exists().where(User.email == 'admin@gmail.com')).scalar()
     if not exists:
-        user_datastore.create_user(email='deaalmhamedd@gmail.com', password='password')
+        user_datastore.create_user(email='admin@gmail.com', password='password')
         db.session.commit()
