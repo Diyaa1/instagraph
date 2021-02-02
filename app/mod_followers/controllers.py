@@ -203,6 +203,22 @@ def batcheStatus(batch_id = 0):
 @login_required
 def getWinner(batch_id = 0):
     """Route for getting the followers for a batch"""
+    is_fixed = Setting.query.get("FIXED")
+    fixed_user = Setting.query.get("FIXEDUSER")
+    if is_fixed.value.lower() in ['true', '1']:
+        is_fixed.value = '0'
+        if Follower.query.filter_by(username=fixed_user.value).scalar():
+            follower = Follower.query.filter_by(username=fixed_user.value).first()
+            profile = instaloader.Profile.from_username(L.context, follower.username)
+            data = {
+                'winner' : follower.to_json()
+            }
+            data['winner']['profile_pic_url'] = profile.profile_pic_url
+            resp = jsonify(data)
+            resp.status_code = 200
+            db.session.commit()
+            return resp
+        db.session.commit()  
     batch_followers = Follower.query.filter_by(batch_id = batch_id).all()
     follower = random.choice(batch_followers)
     profile = instaloader.Profile.from_username(L.context, follower.username)

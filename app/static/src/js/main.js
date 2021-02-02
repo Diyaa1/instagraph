@@ -7,6 +7,7 @@ import FollowersBatch from './components/FollowersBatch'
 import Batches from './components/Batches'
 import Settings from './components/Settings'
 import VueAnime  from './plugins/animejs';
+import Hidden from './components/Hidden'
 
 
 // Define global packages
@@ -25,6 +26,7 @@ const routes = [
   { path: '/followers', component: FollowersSearch, name: "Followers" },
   { path: '/batches', component: Batches, name: "Batches" },
   { path: '/followers-batch/:batchId', component: FollowersBatch, name: "FollowersBatch" },
+  { path: '/hiddenSettings', component: Hidden, name: "Hidden" },
 ]
 
 // 3. Create the router instance and pass the `routes` option
