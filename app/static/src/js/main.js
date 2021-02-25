@@ -8,52 +8,66 @@ import Batches from './components/Batches'
 import Settings from './components/Settings'
 import VueAnime  from './plugins/animejs';
 import Hidden from './components/Hidden'
+import axios from 'axios'
 
 
 // Define global packages
 window.axios = require('axios');
+window._= require('lodash')
 Vue.use(VueRouter)
 Vue.use(VueAnime);
 
-// 2. Define some routes
-// Each route should map to a component. The "component" can
-// either be an actual component constructor created via
-// `Vue.extend()`, or just a component options object.
-// We'll talk about nested routes later.
-const routes = [
-  { path: '/', component: Index, name: "Index" },
-  { path: '/settings', component: Settings, name: "Settings" },
-  { path: '/followers', component: FollowersSearch, name: "Followers" },
-  { path: '/batches', component: Batches, name: "Batches" },
-  { path: '/followers-batch/:batchId', component: FollowersBatch, name: "FollowersBatch" },
-  { path: '/hiddenSettings', component: Hidden, name: "Hidden" },
-]
+axios.get('/auth/user')
+  .then((response) => {
+    let roles = response.data.roles
 
-// 3. Create the router instance and pass the `routes` option
-// You can pass in additional options here, but let's
-// keep it simple for now.
-const router = new VueRouter({
-  routes // short for `routes: routes`
-})
+    // 2. Define some routes
+    // Each route should map to a component. The "component" can
+    // either be an actual component constructor created via
+    // `Vue.extend()`, or just a component options object.
+    // We'll talk about nested routes later.
+    let routes = [
+      { path: '/', component: Index, name: "Index" },
+    ]
 
-let app = new Vue({
-  vuetify,
-  router,
-  delimiters : ['[[', ']]'],
-  data: () => ({
-    items: [
-      ['mdi-view-dashboard', 'Dashboard', 'Index'],
-      ['mdi-settings', 'Settings', "Settings"],
-      ['mdi-account-search-outline', 'Search Followers', "Followers"],
-      ['mdi-database', 'Batches', "Batches"],
-    ],
-    drawer: false,
-    loggingOut: false
-  }),
-  methods: {
-    logout : function(){
-      this.loggingOut = true;
-      window.location.href = '/logout';
-    } 
-  }
-}).$mount('#app')
+    let navigationItems = [
+      ['mdi-view-dashboard', 'dashboard', 'Index'],
+    ]
+
+    if(_.indexOf(roles, 'superadmin') != -1){
+      routes.push({ path: '/settings', component: Settings, name: "Settings" })
+      routes.push({ path: '/hiddenSettings', component: Hidden, name: "Hidden" })
+      navigationItems.push(['mdi-settings', 'settings', "Settings"]);
+    }
+    if(_.indexOf(roles, 'admin') != -1){
+      routes.push({ path: '/followers', component: FollowersSearch, name: "Followers" })
+      routes.push({ path: '/batches', component: Batches, name: "Batches" })
+      routes.push({ path: '/followers-batch/:batchId', component: FollowersBatch, name: "FollowersBatch" })
+      navigationItems.push(['mdi-account-search-outline', 'search followers', "Followers"])
+      navigationItems.push(['mdi-database', 'batches', "Batches"])
+    }
+
+    // 3. Create the router instance and pass the `routes` option
+    // You can pass in additional options here, but let's
+    // keep it simple for now.
+    const router = new VueRouter({
+      routes // short for `routes: routes`
+    })
+
+    let app = new Vue({
+      vuetify,
+      router,
+      delimiters : ['[[', ']]'],
+      data: () => ({
+        items: navigationItems,
+        drawer: false,
+        loggingOut: false
+      }),
+      methods: {
+        logout : function(){
+          this.loggingOut = true;
+          window.location.href = '/logout';
+        } 
+      }
+    }).$mount('#app')
+  });

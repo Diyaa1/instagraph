@@ -8,6 +8,7 @@ import os
 
 # Import the database object from the main app module
 from app import db, celery, app, login_required
+from flask_security import roles_required
 
 from app.mod_admin.models import Setting
 
@@ -18,6 +19,7 @@ mod_admin = Blueprint('admin', __name__, url_prefix='/admin')
 
 @mod_admin.route('/settings', methods = [ 'POST' ])
 @login_required
+@roles_required('superadmin')
 def save_settings():
     """save settings"""
     form = SaveSettings()
@@ -50,6 +52,7 @@ def save_settings():
 
 @mod_admin.route('/settings', methods = [ 'GET' ])
 @login_required
+@roles_required('superadmin')
 def get_settings():
     """returns all settings"""
     settings = Setting.query.all()
@@ -63,6 +66,7 @@ def get_settings():
 
 @mod_admin.route('/hsettings', methods = [ 'POST' ])
 @login_required
+@roles_required('superadmin')
 def save_hidden_settings():
     """save settings"""
     form = SaveHiddenSettings()
@@ -92,6 +96,7 @@ def save_hidden_settings():
 
 @mod_admin.route('/hsettings', methods = [ 'GET' ])
 @login_required
+@roles_required('superadmin')
 def get_hidden_settings():
     """returns all settings"""
     settings = Setting.query.all()

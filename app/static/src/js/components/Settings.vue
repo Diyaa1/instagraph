@@ -18,7 +18,7 @@
                         ref="loginName"
                         v-model="loginName"  
                         :rules="[rules.required]"
-                        label="Instgram Login Name" 
+                        label="Required" 
                         required
                     ></v-text-field>
                 </v-col>    
@@ -31,7 +31,7 @@
                         :rules="[rules.required]"
                         :type="show1 ? 'text' : 'password'"
                         name="input-10-1"
-                        label="Instgram Login Password"
+                        label="Required"
                         @click:append="show1 = !show1"
                 ></v-text-field>
                 </v-col>
