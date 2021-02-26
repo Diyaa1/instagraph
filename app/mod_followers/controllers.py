@@ -19,6 +19,8 @@ from app.mod_followers.models import Follower, Batch
 
 from app.mod_admin.models import Setting
 
+from celery import events
+
 import random
 
 L = instaloader.Instaloader()
@@ -38,7 +40,18 @@ def login(username, password):
         L.login(username, password)
         L.save_session_to_file("bsession")
         #Login And Save Cookie
-    
+@mod_followers.route('/batches/<batch_id>/stop', methods = [ 'POST' ])
+@login_required
+def revoke_task(batch_id):
+    batch = Batch.query.get(batch_id)
+    task_id = batch.task_id
+    celery.control.revoke(task_id, terminate=True)
+    batch.status="FAILED"
+    db.session.commit()
+    message = {}
+    resp = jsonify(message)
+    resp.status_code = 200
+    return resp
 
 @celery.task(time_limit=333333, soft_time_limit=333333)
 def fetchFollowers( batch_id, username, password, searchedUser):
@@ -79,14 +92,27 @@ def fetchFollowers( batch_id, username, password, searchedUser):
         db.session.commit()
         return -1    
 
+def some_batch_is_active():
+    """check if theres any active batches"""
+    return Batch.query.filter(Batch.status != "COMPLETED").filter(Batch.status != "FAILED").first() is not None
 
-@limiter.limit("100/day")
-@limiter.limit("10/hour")
+@limiter.limit("1000/day")
+@limiter.limit("100/hour")
 @limiter.limit("1/minute")
 @mod_followers.route('/', methods = [ 'POST' ])
 @login_required
 def followers():
     """Route for starting fetching followers from instagram"""
+
+    if some_batch_is_active():
+        message = {
+            'message': 'There\'s an already active batch, wait till it finish',
+            'code' : 'ALREADY_ACTIVE'
+        }
+        resp = jsonify(message)
+        resp.status_code = 400
+        return resp
+
     form = SearchFollowersForm()
     if form.validate_on_submit():
         try:

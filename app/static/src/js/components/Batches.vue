@@ -18,17 +18,62 @@
         </v-list-item>
         <v-list-item v-for="item in batches" :key="item.id" two-line @click="openBatch(item.id)">
             <v-list-item-content>
-            <v-list-item-title style="font-weight: bolder; margin-bottom:15px">Batch {{ item.id }} <v-chip
-                close-icon="mdi-close-outline"
-                :color="getColor(item.status)"
-                label
-                style="color:white !important; margin: 0 13px; padding: 5px 27px;"
-            >{{ getLabel(item.status)}}</v-chip></v-list-item-title>
+            <v-list-item-title style="font-weight: bolder; margin-bottom:15px">Batch {{ item.id }} 
+                <v-chip
+                    close-icon="mdi-close-outline"
+                    :color="getColor(item.status)"
+                    label
+                    style="color:white !important; margin: 0 13px; padding: 5px 27px;"
+                >{{ getLabel(item.status)}}</v-chip>
+                <v-btn
+                    depressed
+                    color="error"
+                    v-if="item.status == 'WORKING'"
+                    @click.stop="dialogContext = item.id; dialog=true;"
+                    v-on:blur.stop=""
+                >
+                    Stop this batch
+                </v-btn>
+            </v-list-item-title>
             <v-list-item-subtitle>User {{ item.user }} - {{ item.created_at }} </v-list-item-subtitle>
             </v-list-item-content>
         </v-list-item>
       </v-list-item-group>
     </v-card>
+    <v-dialog
+            v-model="dialog"
+            width="500"
+    >
+        <v-card>
+            <v-card-title class="headline">
+                Stop Confirmation
+            </v-card-title>
+
+            <v-card-text style="color:#333; padding: 10px;">
+                Are you really sure you want to stop this batch.
+            </v-card-text>
+
+            <v-divider></v-divider>
+
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                    color="secondary"
+                    text
+                    @click="dialog = false"
+                >
+                    Discard
+                </v-btn>
+                <v-btn
+                    color="red"
+                    style="color:white"
+                    @click="stopBatch(dialogContext)"
+                >
+                    Stop
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -37,7 +82,8 @@
         data: function () {
             return {
                 batches: [],
-                overlay: false
+                overlay: false,
+                dialog: false
             };
         },
         methods:{
@@ -46,6 +92,27 @@
             },
             openBatch(batchId){
                 this.$router.push({ name: 'FollowersBatch', params: { batchId } })
+            },
+            stopBatch(batchId){
+                let self = this;
+                this.searching = true;
+                axios({
+                    method: 'post',
+                    url: '/followers/batches/' + batchId + '/stop',
+                    data: {}
+                }).then((response) => {
+                    //set batch status as failed
+                   this.searching = false;
+                   this.batches = _.map(this.batches, function(batch){
+                       if(batch.id == batchId){
+                           batch.status = "FAILED"
+                       }
+                       return batch;
+                   })
+                }, (error) => {
+                    this.searching = false;
+                })
+                this.dialog = false;
             },
             getColor(status){
                 if(status == "WORKING"){
