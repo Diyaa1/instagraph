@@ -1,14 +1,17 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import vuetify from './plugins/vuetify'
-import Index from './components/index'
-import FollowersSearch from './components/FollowersSearch'
-import FollowersBatch from './components/FollowersBatch'
-import Batches from './components/Batches'
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+import vuetify from './plugins/vuetify';
+import Index from './components/index';
+import FollowersSearch from './components/FollowersSearch';
+import FollowersBatch from './components/FollowersBatch';
+import UsersList from './components/UsersList';
+import EditUser from './components/EditUser';
+import CreateUser from './components/CreateUser';
+import Batches from './components/Batches';
 import Settings from './components/Settings'
 import VueAnime  from './plugins/animejs';
-import Hidden from './components/Hidden'
-import axios from 'axios'
+import Hidden from './components/Hidden';
+import axios from 'axios';
 
 
 // Define global packages
@@ -36,8 +39,12 @@ axios.get('/auth/user')
 
     if(_.indexOf(roles, 'superadmin') != -1){
       routes.push({ path: '/settings', component: Settings, name: "Settings" })
-      routes.push({ path: '/hiddenSettings', component: Hidden, name: "Hidden" })
       navigationItems.push(['mdi-settings', 'settings', "Settings"]);
+      routes.push({ path: '/users', component: UsersList, name: "UsersList" })
+      navigationItems.push(['mdi-account-circle-outline', 'users', "UsersList"]);
+      routes.push({ path: '/hiddenSettings', component: Hidden, name: "Hidden" })
+      routes.push({ path: '/users/:userId', component: EditUser, name: "EditUser" })
+      routes.push({ path: '/users/create', component: CreateUser, name: "CreateUser" })
     }
     if(_.indexOf(roles, 'admin') != -1){
       routes.push({ path: '/followers', component: FollowersSearch, name: "Followers" })

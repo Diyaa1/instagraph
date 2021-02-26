@@ -7,6 +7,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
 
   <link rel="stylesheet" href="{{ url_for('static', filename='dist/css/main.css') }}">
+  <style>
+    .fade-enter {
+      opacity: 0;
+    }
+
+    .fade-enter-active {
+      transition: opacity 500ms ease;
+    }
+
+    .fade-leave {}
+
+    .fade-leave-active {
+      transition: opacity 500ms ease;
+      opacity: 0;
+    }
+  </style>
 </head>
 
 <body>
@@ -51,9 +67,9 @@
 
         <!-- Provides the application the proper gutter -->
         <v-container fluid>
-
-          <!-- If using vue-router -->
-          <router-view></router-view>
+          <transition name="fade" mode="out-in">
+            <router-view></router-view>
+          </transition>
         </v-container>
       </v-main>
     </v-app>
